@@ -1,0 +1,35 @@
+﻿services:
+  orderprocessingservice:
+    image: orderprocessingservice
+    build:
+      context: .
+      dockerfile: OrderProcessingService/Dockerfile
+    environment:
+      - Redis__Configuration=redis:6379
+      - Redis__QueueKey=orders:queue
+      - Mongo__ConnectionString=mongodb://mongo:27017
+      - Mongo__Database=ordersdb
+      - Mongo__OrdersCollection=orders
+      - ASPNETCORE_ENVIRONMENT=Development
+    depends_on:
+      - redis
+      - mongo
+    ports:
+      - "5001:8080"
+
+  redis:
+    image: redis:7
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+volumes:
+  mongo-data: {}
